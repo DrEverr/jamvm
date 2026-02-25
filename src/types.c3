@@ -1,5 +1,7 @@
 module types;
 
+alias Bytes = char[];
+
 enum Status : char
 {
   HALT,
