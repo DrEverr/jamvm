@@ -118,6 +118,48 @@ fn bool Decoder.is_done(Decoder* dec) {
   return dec.offset >= dec.data.len;
 }
 
+<*
+ Encode natural number to var_u64.
+
+ @param a: `The natural number to encode.`
+ @param out: `Output buffer.`
+ @require out.len >= 9
+ @return `Number of bytes written.`
+*>
+fn int encode(ulong a, types::Bytes out) {
+  if (a == 0) {
+    out[0] = (char)0;
+    return 1;
+  }
+
+  int l = 1;
+  while (l < 8 && a >= ((ulong) 1 << (7 * (l + 1)))) l++;
+
+  if (l < 8) {
+    out[0] = (char)((0xFFUL << (8 - l)) | (a >> (8 * l)));
+    encode_be(a, l, out[1..]);
+    return l + 1;
+  }
+
+  out[0] = (char)0xFF;
+  encode_be(a, 8, out[1..]);
+  return 9;
+}
+
+<*
+ Encode a 64-bit unsigned integer as big-endian bytes.
+
+ @param a: `The value to encode.`
+ @param n: `Number of bytes to write.`
+ @param out: `Output buffer to write into.`
+ @require n >= 1, n <= 8
+*>
+fn void encode_be(ulong a, int n, types::Bytes out) @private {
+  for (int i = n - 1; i >= 0; i--) {
+    out[n - 1 - i] = (char)((a >> (8 * i)) & 0xFF);
+  }
+}
+
 fn char var_length(char byte) @private {
   foreach (i, v : MASK) {
     if (byte >= v) {

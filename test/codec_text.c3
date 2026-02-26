@@ -1,6 +1,7 @@
 module codec_test;
 
 import codec;
+import types;
 
 fn void test_u8() @test {
   codec::Decoder dec = codec::new_decoder({1, 2, 3, 4, 5, 6, 7, 8});
@@ -59,4 +60,18 @@ fn void test_var_u64() @test {
   test::eq(dec.var_u64()!!, 127);
   test::eq(dec.var_u64()!!, 255);
   test::eq(dec.var_u64()!!, 72057594037927936);
+}
+
+fn void test_encode() @test {
+  types::Bytes b = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  test::eq(codec::encode(0, b), 1);
+  test::eq(b[..1], (types::Bytes){ 0 });
+  test::eq(codec::encode(127, b), 1);
+  test::eq(b[..1], (types::Bytes){ 0x7F });
+  test::eq(codec::encode(127, b[1..]), 1);
+  test::eq(b[1..2], (types::Bytes){ 0x7F });
+  test::eq(codec::encode(255, b), 2);
+  test::eq(b[..2], (types::Bytes){ 0x80, 0xFF });
+  test::eq(codec::encode(72057594037927936, b), 8);
+  test::eq(b[..9], (types::Bytes){ 0xFF, 0, 0, 0, 0, 0, 0, 0, 0x01 });
 }
