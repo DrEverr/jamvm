@@ -36,11 +36,27 @@ fn void test_u32() @test {
 }
 
 fn void test_var_u32() @test {
-  codec::Decoder dec = codec::new_decoder({0x00, 0x01, 0x7F, 0x80, 0x01, 0xC0, 0x00, 0x01, 0xE0, 0x00, 0x00, 0x01});
+  codec::Decoder dec = codec::new_decoder({0x00, 0x01, 0x7F, 0x80, 0x01, 0xC0, 0x00, 0x01, 0xE0, 0x00, 0x00, 0x01, 0xF0, 0x00, 0x00, 0x00, 0x01 });
   test::eq(dec.var_u32()!!, 0);
   test::eq(dec.var_u32()!!, 1);
   test::eq(dec.var_u32()!!, 127);
   test::eq(dec.var_u32()!!, 1);
   test::eq(dec.var_u32()!!, 256);
   test::eq(dec.var_u32()!!, 65536);
+  test::eq(dec.var_u32()!!, 16777216);
+}
+
+fn void test_u64() @test {
+  codec::Decoder dec = codec::new_decoder({ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1});
+  test::eq(dec.u64()!!, 1);
+  test::eq(dec.u64()!!, 72057594037927936);
+}
+
+fn void test_var_u64() @test {
+  codec::Decoder dec = codec::new_decoder({0x00, 0x01, 0x7F, 0x80, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 });
+  test::eq(dec.var_u64()!!, 0);
+  test::eq(dec.var_u64()!!, 1);
+  test::eq(dec.var_u64()!!, 127);
+  test::eq(dec.var_u64()!!, 255);
+  test::eq(dec.var_u64()!!, 72057594037927936);
 }
