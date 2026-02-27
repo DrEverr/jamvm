@@ -1,6 +1,7 @@
 module codec;
 
 import std::math;
+
 import types;
 
 faultdef NOT_ENOUGH_BYTES;
@@ -132,31 +133,31 @@ fn int encode(ulong a, types::Bytes out) {
     return 1;
   }
 
-  int l = 1;
-  while (l < 8 && a >= ((ulong) 1 << (7 * (l + 1)))) l++;
+  int l = 0;
+  while (l <= 7 && a >= (1UL << (7 * (l + 1)))) l++;
 
-  if (l < 8) {
-    out[0] = (char)((0xFFUL << (8 - l)) | (a >> (8 * l)));
-    encode_be(a, l, out[1..]);
-    return l + 1;
+  if (l == 8) {
+    out[0] = (char)0xFF;
+    encode_le(a, 8, out[1..]);
+    return 9;
   }
 
-  out[0] = (char)0xFF;
-  encode_be(a, 8, out[1..]);
-  return 9;
+  out[0] = (char)(0xFF << (8 - l)) | (char)(a >> (8 * l));
+  encode_le(a, l, out[1..]);
+  return l + 1;
 }
 
 <*
- Encode a 64-bit unsigned integer as big-endian bytes.
+ Encode a 64-bit unsigned integer as little-endian bytes.
 
  @param a: `The value to encode.`
  @param n: `Number of bytes to write.`
  @param out: `Output buffer to write into.`
- @require n >= 1, n <= 8
+ @require n >= 0, n <= 8
 *>
-fn void encode_be(ulong a, int n, types::Bytes out) @private {
-  for (int i = n - 1; i >= 0; i--) {
-    out[n - 1 - i] = (char)((a >> (8 * i)) & 0xFF);
+fn void encode_le(ulong a, int n, types::Bytes out) @private {
+  for (int i; i < n; i++) {
+    out[i] = (char)((a >> (8 * i)) & 0xFF);
   }
 }
 

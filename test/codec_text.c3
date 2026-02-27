@@ -65,13 +65,15 @@ fn void test_var_u64() @test {
 fn void test_encode() @test {
   types::Bytes b = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
   test::eq(codec::encode(0, b), 1);
-  test::eq(b[..1], (types::Bytes){ 0 });
+  test::eq(b[..0], (types::Bytes){ 0 });
+  test::eq(codec::encode(1, b), 1);
+  test::eq(b[..0], (types::Bytes){ 0x01 });
   test::eq(codec::encode(127, b), 1);
-  test::eq(b[..1], (types::Bytes){ 0x7F });
+  test::eq(b[..0], (types::Bytes){ 0x7F });
   test::eq(codec::encode(127, b[1..]), 1);
-  test::eq(b[1..2], (types::Bytes){ 0x7F });
-  test::eq(codec::encode(255, b), 2);
-  test::eq(b[..2], (types::Bytes){ 0x80, 0xFF });
-  test::eq(codec::encode(72057594037927936, b), 8);
-  test::eq(b[..9], (types::Bytes){ 0xFF, 0, 0, 0, 0, 0, 0, 0, 0x01 });
+  test::eq(b[1..1], (types::Bytes){ 0x7F });
+  test::eq(codec::encode(128, b), 2);
+  test::eq(b[..1], (types::Bytes){ 0x80, 0x80 });
+  test::eq(codec::encode(72057594037927936, b), 9);
+  test::eq(b[..8], (types::Bytes){ 0xFF, 0, 0, 0, 0, 0, 0, 0, 0x01 });
 }
