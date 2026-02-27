@@ -77,3 +77,15 @@ fn void test_encode() @test {
   test::eq(codec::encode(72057594037927936, b), 9);
   test::eq(b[..8], (types::Bytes){ 0xFF, 0, 0, 0, 0, 0, 0, 0, 0x01 });
 }
+
+fn void test_decode_encode() @test {
+  codec::Decoder dec = codec::new_decoder({0x00, 0x01, 0x7F, 0x80, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 });
+  types::Bytes out = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  int prev_off;
+  while (!dec.is_done()) {
+    int v = codec::encode(dec.var_u64()!!, out);
+    test::eq(v, dec.offset - prev_off);
+    test::eq(out[..v-1], dec.data[prev_off..prev_off+v-1]);
+    prev_off = dec.offset;
+  }
+}
