@@ -1,6 +1,6 @@
 module codec;
 
-import std::math;
+import math;
 
 import types;
 
@@ -52,13 +52,13 @@ fn uint? Decoder.u32(Decoder* dec) {
 fn uint? Decoder.var_u32(Decoder* dec) {
   assert_enough(dec, 1)!;
   uint result = dec.data[dec.offset];
-  uint length = var_length((char)result);
+  char length = var_length((char)result);
   if (length == 0) {
     dec.offset++;
     return result;
   }
   assert_enough(dec, length)!;
-  result = length >= 4 ? 0 : (result + (uint)math::pow(2, (8 - length)) - (uint)math::pow(2, 8)) << (length * 8);
+  result = length >= 4 ? 0 : (result + math::pow(2, (8 - length)) - math::pow(2, 8)) << (length * 8);
   uint v;
   for (int i = length - 1; i >= 0; i--) {
     v = (v << 8) + dec.data[dec.offset + 1 + (uint)i];
@@ -85,13 +85,13 @@ fn ulong? Decoder.u64(Decoder* dec) {
 fn ulong? Decoder.var_u64(Decoder* dec) {
   assert_enough(dec, 1)!;
   ulong result = (ulong)dec.data[dec.offset];
-  uint length = var_length((char)result);
+  char length = var_length((char)result);
   if (length == 0) {
     dec.offset++;
     return result;
   }
   assert_enough(dec, length)!;
-  result = length == 8 ? 0 : (result + (ulong)math::pow(2, (8 - length)) - (ulong)math::pow(2, 8)) << (length * 8);
+  result = length == 8 ? 0 : (result + math::pow(2, (8 - length)) - math::pow(2, 8)) << (length * 8);
   ulong v;
   for (int i = length - 1; i >= 0; i--) {
     v = (v << 8) + (ulong)dec.data[dec.offset + 1 + (uint)i];
