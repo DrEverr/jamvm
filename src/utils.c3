@@ -1,7 +1,5 @@
 module utils;
 
-import types;
-
 <*
   Change unsigned value to a signed version
   @param a: `Number to convert`

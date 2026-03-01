@@ -10,10 +10,10 @@ const char[8] MASK = { 0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0, 0x80 };
 
 struct Decoder {
   uint offset;
-  types::Bytes data;
+  Bytes data;
 }
 
-fn Decoder new_decoder(types::Bytes data) {
+fn Decoder new_decoder(Bytes data) {
   return { 0, data };
 }
 
@@ -127,7 +127,7 @@ fn bool Decoder.is_done(Decoder* dec) {
  @require out.len >= 9
  @return `Number of bytes written.`
 *>
-fn int encode(ulong a, types::Bytes out) {
+fn int encode(ulong a, Bytes out) {
   if (a == 0) {
     out[0] = (char)0;
     return 1;
@@ -155,7 +155,7 @@ fn int encode(ulong a, types::Bytes out) {
  @param out: `Output buffer to write into.`
  @require n >= 0, n <= 8
 *>
-fn void encode_le(ulong a, int n, types::Bytes out) @private {
+fn void encode_le(ulong a, int n, Bytes out) @private {
   for (int i; i < n; i++) {
     out[i] = (char)((a >> (8 * i)) & 0xFF);
   }
