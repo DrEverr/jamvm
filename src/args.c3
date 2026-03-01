@@ -1,14 +1,14 @@
-module arguments;
+module args;
 
 import types;
 import registers;
 import math;
 import utils;
 
-alias Args = ulong[<4>];
-alias ArgsDecoder = fn Args (types::Bytes code, uint offset = 0, char length = 0);
+alias ArgsType = ulong[<4>];
+alias ArgsDecoder = fn ArgsType (Bytes code, uint offset = 0, char length = 0);
 
-enum Arguments: char {
+enum Args: char {
   ZERO,
   ONE_IMM,
   ONE_REG_ONE_EXT_IMM,
@@ -27,59 +27,59 @@ enum Arguments: char {
 // const char[*] ARGS_COUNT    = { 0, 1, 2, 2, 1, 2, 3, 3, 2, 3, 3, 4, 3 };
 // const char[*] ARGS_MIN_SIZE = { 0, 1, 9, 2, 1, 2, 2, 2, 2, 1, 2, 3, 2 };
 
-<* Order same as in Arguments *>
+<* Order same as in Args *>
 const ArgsDecoder[*] DECODER = {
-  // Arguments.ZERO
+  // Args.ZERO
   fn (_c, _o, _l) => { 0, 0, 0, 0 },
-  // Arguments.ONE_IMM
+  // Args.ONE_IMM
   fn (c, o, l) => { i64(c, o + 1, math::min(4, l)), 0, 0, 0 },
-  // Arguments.ONE_REG_ONE_EXT_IMM
+  // Args.ONE_REG_ONE_EXT_IMM
   fn (c, o, _l) => { registers::reg(lower(c[o + 1])), u64(c, o + 2, 8), 0, 0 },
-  // Arguments.TWO_IMM,
+  // Args.TWO_IMM,
   fn (c, o, l) {
     char lx = math::min(4, c[o + 1] & 0x7);
     char ly = math::min(4, math::max(0, l - lx - 1));
     return { i64(c, o + 2, lx), i64(c, o + 2 + lx, ly), 0, 0 };
   },
-  // Arguments.ONE_OFF
+  // Args.ONE_OFF
   fn (c, o, l) {
     char lx = math::min(4, l);
     return { utils::unsigned_to_signed(i64(c, o + 1, lx), lx), 0, 0, 0};
   },
-  // Arguments.ONE_REG_ONE_IMM
+  // Args.ONE_REG_ONE_IMM
   fn (c, o, l) => { registers::reg(lower(c[o + 1])), i64(c, o + 2, math::min(4, math::max(0, l - 1))), 0, 0 },
-  // Arguments.ONE_REG_TWO_IMM
+  // Args.ONE_REG_TWO_IMM
   fn (c, o, l) {
     char lx = math::min(4, upper(c[o + 1]) & 0x7);
     char ly = math::min(4, math::max(0, l - lx - 1));
     return { registers::reg(lower(c[o + 1])), i64(c, o + 2, lx), i64(c, o + 2 + lx, ly), 0 };
   },
-  // Arguments.ONE_REG_ONE_IMM_ONE_OFF
+  // Args.ONE_REG_ONE_IMM_ONE_OFF
   fn (c, o, l) {
     char lx = math::min(4, upper(c[o + 1]) & 0x7);
     char ly = math::min(4, math::max(0, l - lx - 1));
     return { registers::reg(lower(c[o + 1])), i64(c, o + 2, lx), utils::unsigned_to_signed(i64(c, o + 2 + lx, ly), ly - lx), 0 };
   },
-  // Arguments.TWO_REG
+  // Args.TWO_REG
   fn (c, o, _l) => { registers::reg(lower(c[o + 1])), registers::reg(upper(c[o + 1])), 0, 0 },
-  // Arguments.TWO_REG_ONE_IMM
+  // Args.TWO_REG_ONE_IMM
   fn (c, o, l) => { registers::reg(lower(c[o + 1])), registers::reg(upper(c[o + 1])), i64(c, o + 2, math::min(4, math::max(0, l - 1))), 0 },
-  // Arguments.TWO_REG_ONE_OFF
+  // Args.TWO_REG_ONE_OFF
   fn (c, o, l) {
     char lx = math::min(4, math::max(0, l - 1));
     return { registers::reg(lower(c[o + 1])), registers::reg(upper(c[o + 1])), utils::unsigned_to_signed(i64(c, o + 2, lx), lx), 0 };
   },
-  // Arguments.TWO_REG_TWO_IMM
+  // Args.TWO_REG_TWO_IMM
   fn (c, o, l) {
     char lx = math::min(4, c[o + 2] & 0x7);
     char ly = math::min(4, math::max(0, l - lx - 2));
     return { registers::reg(lower(c[o + 1])), registers::reg(upper(c[o + 1])), i64(c, o + 3, lx), i64(c, o + 3 + lx, ly) };
   },
-  // Arguments.THREE_REG
+  // Args.THREE_REG
   fn (c, o, l) => { registers::reg(lower(c[o + 1])), registers::reg(upper(c[o + 1])), registers::reg(c[o + 2]), 0},
 };
 
-fn ulong i64(types::Bytes data, uint offset, char length) @private {
+fn ulong i64(Bytes data, uint offset, char length) @private {
   if (length == 0) return 0;
   ulong v;
   for (int i; i < length; i++) {
@@ -91,7 +91,7 @@ fn ulong i64(types::Bytes data, uint offset, char length) @private {
   return v;
 }
 
-fn ulong u64(types::Bytes code, uint offset, int length) @private {
+fn ulong u64(Bytes code, uint offset, int length) @private {
   if (length == 0) return 0;
   ulong v = code[offset];
   if (length == 1) return v;

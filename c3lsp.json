@@ -1,0 +1,11 @@
+{
+    "C3": {
+        "version": "0.7.10",
+        "path": "$HOME/.c3/c3c",
+        "stdlib-path": "$HOME/.c3/lib/std"
+    },
+    "Diagnostics": {
+        "enabled": true,
+        "delay": 1000
+    }
+}
