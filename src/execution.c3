@@ -36,10 +36,10 @@ fn void ExeResult.host(ExeResult* exe, int code) {
   exe.exitCode = code;
 }
 
-fn void ExeResult.fault(ExeResult* exe, int address) {
+fn void ExeResult.page_fault(ExeResult* exe, int address) {
   exe.result = Result.STATUS;
   exe.status = Status.FAULT;
-  exe.exitCode = code;
+  exe.exitCode = address;
 }
 
 fn void ExeResult.static_jump(ExeResult* exe, int offset) {
