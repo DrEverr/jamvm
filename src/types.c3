@@ -1,6 +1,7 @@
 module types;
 
-alias Bytes = char[];
+alias Byte = char;
+alias Bytes = Byte[];
 
 enum Status : char
 {

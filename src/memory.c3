@@ -1,5 +1,7 @@
 module memory;
 
+import types;
+
 const PAGE_SIZE = 4096;
 const PAGE_SIZE_SHIFT = 12;
 const SEGMENT_SIZE = 65536;
@@ -14,4 +16,17 @@ enum Access: char {
   NONE,
   READ,
   WIRTE,
+}
+
+struct Page {
+  Access access;
+  Byte[PAGE_SIZE] data;
+}
+
+fn bool Page.can_read(Page* page) {
+  return page.access != Access.NONE;
+}
+
+fn bool Page.can_write(Page* page) {
+  return page.access == Access.WIRTE;
 }
