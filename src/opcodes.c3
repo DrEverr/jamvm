@@ -1,22 +1,17 @@
-module instructions;
+module opcodes;
 
 import gas;
 import args;
 
-struct Instruction {
+struct Opcode {
   String name;
   Args kind;
   Gas gas;
 }
 
-const Instruction MISSING = { "INVALID", Args.ZERO, 1 };
+const Opcode MISSING = { "INVALID", Args.ZERO, 1 };
 
-
-
-
-
-
-const Instruction[*] INSTRUCTIONS = {
+const Opcode[*] OPCODES = {
   { "trap", Args.ZERO, 1 }, // 0
   { "fallthrough", Args.ZERO, 1 }, // 1
   MISSING,
@@ -250,7 +245,7 @@ const Instruction[*] INSTRUCTIONS = {
   { "min_u", Args.THREE_REG, 1 }, // 230
 };
 
-fn Instruction get_instruction(uint i) {
-  if (i > INSTRUCTIONS.len) return MISSING;
-  return INSTRUCTIONS[i];
+fn Opcode get_opcode(uint i) {
+  if (i > OPCODES.len) return MISSING;
+  return OPCODES[i];
 }
