@@ -1,6 +1,7 @@
 module memory;
 
 import types;
+import std::collections::map;
 import std::core::mem;
 import std::core::mem::mempool;
 import std::io;
@@ -21,6 +22,9 @@ enum Access: char {
   READ,
   WRITE,
 }
+
+alias PageIndex = uint;
+alias Pages = HashMap { PageIndex, Page };
 
 <* Single Page implementation *>
 struct Page {
@@ -80,4 +84,46 @@ fn uint Pool.allocated(&self) {
 
 fn uint Pool.in_use(&self) {
   return (uint)self.pages.used;
+}
+
+struct Memory {
+  Pages pages;
+  Pool pool;
+  PageIndex sbrk;
+  PageIndex max_address;
+}
+
+fn Memory init_memory(uint page_count = 0, PageIndex sbrk = 0, uint max_pages = MAX_PAGES) {
+  Pool pool;
+  pool.init(page_count, max_pages);
+  PageIndex max_address = max_pages * PAGE_SIZE - 1;
+  Memory mem;
+  mem.pool = pool;
+  mem.max_address = max_address;
+  mem.sbrk = sbrk > max_address ? max_address : sbrk;
+  return mem;
+}
+
+fn void Memory.setData(&self, PageIndex address, Bytes data, Access access = Access.READ) {
+  PageIndex addr = address;
+  Bytes d = data;
+  while (d.len > 0) {
+    Page* p = self.getPage(addr);
+    p.access = access;
+    PageIndex relAddr = addr % PAGE_SIZE;
+    uint count = (uint)PAGE_SIZE - relAddr;
+    uint len = d.len < count ? d.len : count;
+    p.data[relAddr:len] = d[:len];
+
+    addr += len;
+    d = d[len..];
+  }
+}
+
+fn Page* Memory.getPage(&self, PageIndex address) {
+  PageIndex idx = address >> PAGE_SIZE_SHIFT;
+  if (!self.pages.has_key(idx)) {
+    self.pages[idx] = *self.pool.acquire();
+  }
+  return self.pages.get_ref(idx)!!;
 }
