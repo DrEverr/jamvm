@@ -13,6 +13,7 @@ const SEGMENT_SIZE_SHIFT = 16;
 const RESERVED_MEMORY = 65536;
 <* Full 32-bit address space. *>
 const MEMORY_SIZE = 0x1_0000_0000;
+const MAX_PAGES = MEMORY_SIZE / PAGE_SIZE;
 
 <* WRITE implies READ as well. *>
 enum Access: char {
@@ -38,10 +39,14 @@ fn bool Page.can_write(&self) {
 <* Pool of preallocated pages backed by std fixed-size block allocator. *>
 struct Pool {
   mempool::FixedBlockPool pages;
+  uint max_pages;
 }
 
-fn void Pool.init(&self, uint page_count = 0) {
-  self.pages.init_for_type(mem, Page, page_count);
+fn void Pool.init(&self, uint page_count = 0, uint max_pages = MAX_PAGES) {
+  uint capped_max = max_pages > MAX_PAGES ? MAX_PAGES : max_pages;
+  uint capped_count = page_count > capped_max ? capped_max : page_count;
+  self.max_pages = capped_max;
+  self.pages.init_for_type(mem, Page, capped_count);
 }
 
 fn void Pool.clean_pool(&self) {
@@ -49,6 +54,10 @@ fn void Pool.clean_pool(&self) {
 }
 
 fn Page* Pool.acquire(&self, Access access = Access.NONE) {
+  if ((uint)self.pages.used >= self.max_pages) {
+    io::printn("ERR: page pool at maximum capacity, cannot acquire more pages.");
+    return null;
+  }
   if (self.pages.used == self.pages.allocated) {
     io::printn("WARN: page pool exhausted, allocating a new page chunk.");
   }

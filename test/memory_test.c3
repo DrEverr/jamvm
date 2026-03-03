@@ -47,3 +47,40 @@ fn void test_pool_acquire_release_reuse() @test {
   test::eq(pool.in_use(), 2);
   test::eq(p3.data[0], 0);
 }
+
+fn void test_pool_max_pages_cap() @test {
+  Pool pool;
+  pool.init(2, 3);
+  defer pool.clean_pool();
+
+  Page* p1 = pool.acquire(Access.READ);
+  Page* p2 = pool.acquire(Access.WRITE);
+  Page* p3 = pool.acquire(Access.READ);
+  test::eq(pool.in_use(), 3);
+
+  // The 4th acquire must be rejected — pool is at capacity.
+  Page* p4 = pool.acquire(Access.READ);
+  test::eq(p4 == null, true);
+  test::eq(pool.in_use(), 3);
+
+  // Releasing one and re-acquiring should succeed.
+  pool.release(p3);
+  test::eq(pool.in_use(), 2);
+  Page* p5 = pool.acquire(Access.WRITE);
+  test::eq(p5 != null, true);
+  test::eq(pool.in_use(), 3);
+}
+
+fn void test_pool_init_caps_page_count() @test {
+  Pool pool;
+  // Requesting more initial pages than max_pages should be capped.
+  pool.init(10, 2);
+  defer pool.clean_pool();
+
+  Page* p1 = pool.acquire(Access.READ);
+  Page* p2 = pool.acquire(Access.READ);
+  test::eq(pool.in_use(), 2);
+
+  Page* p3 = pool.acquire(Access.READ);
+  test::eq(p3 == null, true);
+}
