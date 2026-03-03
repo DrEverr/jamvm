@@ -21,33 +21,33 @@ struct ExeResult {
   int exitCode;
 }
 
-fn void ExeResult.ok(ExeResult* exe) {
-  exe.result = Result.OK;
+fn void ExeResult.ok(&self) {
+  self.result = Result.OK;
 }
 
-fn void ExeResult.panic(ExeResult* exe) {
-  exe.result = Result.STATUS;
-  exe.status = Status.PANIC;
+fn void ExeResult.panic(&self) {
+  self.result = Result.STATUS;
+  self.status = Status.PANIC;
 }
 
-fn void ExeResult.host(ExeResult* exe, int code) {
-  exe.result = Result.STATUS;
-  exe.status = Status.HOST;
-  exe.exitCode = code;
+fn void ExeResult.host(&self, int code) {
+  self.result = Result.STATUS;
+  self.status = Status.HOST;
+  self.exitCode = code;
 }
 
-fn void ExeResult.page_fault(ExeResult* exe, int address) {
-  exe.result = Result.STATUS;
-  exe.status = Status.FAULT;
-  exe.exitCode = address;
+fn void ExeResult.page_fault(&self, int address) {
+  self.result = Result.STATUS;
+  self.status = Status.FAULT;
+  self.exitCode = address;
 }
 
-fn void ExeResult.static_jump(ExeResult* exe, int offset) {
-  exe.result = Result.STATIC_JUMP;
-  exe.staticJump = offset;
+fn void ExeResult.static_jump(&self, int offset) {
+  self.result = Result.STATIC_JUMP;
+  self.staticJump = offset;
 }
 
-fn void ExeResult.dynamic_jump(ExeResult* exe, int address) {
-  exe.result = Result.DYNAMIC_JUMP;
-  exe.dynamicJump = address;
+fn void ExeResult.dynamic_jump(&self, int address) {
+  self.result = Result.DYNAMIC_JUMP;
+  self.dynamicJump = address;
 }

@@ -17,106 +17,106 @@ fn Decoder new_decoder(Bytes data) {
   return { 0, data };
 }
 
-fn char? Decoder.u8(Decoder* dec) {
-  assert_enough(dec, 1)!;
-  return dec.data[dec.offset++];
+fn char? Decoder.u8(&self) {
+  assert_enough(self, 1)!;
+  return self.data[self.offset++];
 }
 
-fn ushort? Decoder.u16(Decoder* dec) {
-  assert_enough(dec, 2)!;
-  ushort result = dec.data[dec.offset];
-  result |= dec.data[dec.offset + 1] << 8;
-  dec.offset += 2;
+fn ushort? Decoder.u16(&self) {
+  assert_enough(self, 2)!;
+  ushort result = self.data[self.offset];
+  result |= self.data[self.offset + 1] << 8;
+  self.offset += 2;
   return result;
 }
 
-fn uint? Decoder.u24(Decoder* dec) {
-  assert_enough(dec, 3)!;
-  uint result = dec.data[dec.offset];
-  result |= dec.data[dec.offset + 1] << 8;
-  result |= dec.data[dec.offset + 2] << 16;
-  dec.offset += 3;
+fn uint? Decoder.u24(&self) {
+  assert_enough(self, 3)!;
+  uint result = self.data[self.offset];
+  result |= self.data[self.offset + 1] << 8;
+  result |= self.data[self.offset + 2] << 16;
+  self.offset += 3;
   return result;
 }
 
-fn uint? Decoder.u32(Decoder* dec) {
-  assert_enough(dec, 4)!;
-  uint result = dec.data[dec.offset];
-  result |= dec.data[dec.offset + 1] << 8;
-  result |= dec.data[dec.offset + 2] << 16;
-  result |= dec.data[dec.offset + 3] << 24;
-  dec.offset += 4;
+fn uint? Decoder.u32(&self) {
+  assert_enough(self, 4)!;
+  uint result = self.data[self.offset];
+  result |= self.data[self.offset + 1] << 8;
+  result |= self.data[self.offset + 2] << 16;
+  result |= self.data[self.offset + 3] << 24;
+  self.offset += 4;
   return result;
 }
 
-fn uint? Decoder.var_u32(Decoder* dec) {
-  assert_enough(dec, 1)!;
-  uint result = dec.data[dec.offset];
+fn uint? Decoder.var_u32(&self) {
+  assert_enough(self, 1)!;
+  uint result = self.data[self.offset];
   char length = var_length((char)result);
   if (length == 0) {
-    dec.offset++;
+    self.offset++;
     return result;
   }
-  assert_enough(dec, length)!;
+  assert_enough(self, length)!;
   result = length >= 4 ? 0 : (result + math::pow(2, (8 - length)) - math::pow(2, 8)) << (length * 8);
   uint v;
   for (int i = length - 1; i >= 0; i--) {
-    v = (v << 8) + dec.data[dec.offset + 1 + (uint)i];
+    v = (v << 8) + self.data[self.offset + 1 + (uint)i];
   }
   result += v;
-  dec.offset += length + 1;
+  self.offset += length + 1;
   return result;
 }
 
-fn ulong? Decoder.u64(Decoder* dec) {
-  assert_enough(dec, 8)!;
-  ulong result = (ulong)dec.data[dec.offset];
-  result |= (ulong)dec.data[dec.offset + 1] << 8;
-  result |= (ulong)dec.data[dec.offset + 2] << 16;
-  result |= (ulong)dec.data[dec.offset + 3] << 24;
-  result |= (ulong)dec.data[dec.offset + 4] << 32;
-  result |= (ulong)dec.data[dec.offset + 5] << 40;
-  result |= (ulong)dec.data[dec.offset + 6] << 48;
-  result |= (ulong)dec.data[dec.offset + 7] << 56;
-  dec.offset += 8;
+fn ulong? Decoder.u64(&self) {
+  assert_enough(self, 8)!;
+  ulong result = (ulong)self.data[self.offset];
+  result |= (ulong)self.data[self.offset + 1] << 8;
+  result |= (ulong)self.data[self.offset + 2] << 16;
+  result |= (ulong)self.data[self.offset + 3] << 24;
+  result |= (ulong)self.data[self.offset + 4] << 32;
+  result |= (ulong)self.data[self.offset + 5] << 40;
+  result |= (ulong)self.data[self.offset + 6] << 48;
+  result |= (ulong)self.data[self.offset + 7] << 56;
+  self.offset += 8;
   return result;
 }
 
-fn ulong? Decoder.var_u64(Decoder* dec) {
-  assert_enough(dec, 1)!;
-  ulong result = (ulong)dec.data[dec.offset];
+fn ulong? Decoder.var_u64(&self) {
+  assert_enough(self, 1)!;
+  ulong result = (ulong)self.data[self.offset];
   char length = var_length((char)result);
   if (length == 0) {
-    dec.offset++;
+    self.offset++;
     return result;
   }
-  assert_enough(dec, length)!;
+  assert_enough(self, length)!;
   result = length == 8 ? 0 : (result + math::pow(2, (8 - length)) - math::pow(2, 8)) << (length * 8);
   ulong v;
   for (int i = length - 1; i >= 0; i--) {
-    v = (v << 8) + (ulong)dec.data[dec.offset + 1 + (uint)i];
+    v = (v << 8) + (ulong)self.data[self.offset + 1 + (uint)i];
   }
   result += v;
-  dec.offset += length + 1;
+  self.offset += length + 1;
   return result;
 }
 
-fn Bytes? Decoder.bytes(Decoder* dec, uint length) {
-  assert_enough(dec, length)!;
-  Bytes v = dec.data[dec.offset..dec.offset + length];
-  dec.offset += length;
+fn Bytes? Decoder.bytes(&self, uint length) {
+  assert_enough(self, length)!;
+  Bytes v = self.data[self.offset..self.offset + length];
+  self.offset += length;
   return v;
 }
 
 <* Read till the end. *>
-fn Bytes Decoder.rest(Decoder* dec) {
-  Bytes v = dec.data[dec.offset..];
-  dec.offset += v.len;
+fn Bytes Decoder.rest(&self) {
+  Bytes v = self.data[self.offset..];
+  self.offset += v.len;
   return v;
 }
 
-fn bool Decoder.is_done(Decoder* dec) {
-  return dec.offset >= dec.data.len;
+fn bool Decoder.is_done(&self) {
+  return self.offset >= self.data.len;
 }
 
 <*
