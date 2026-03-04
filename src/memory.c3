@@ -127,3 +127,7 @@ fn Page* Memory.getPage(&self, PageIndex address) {
   }
   return self.pages[idx]!!;
 }
+
+fn void Memory.free(&self) {
+  self.pool.clean_pool();
+}
