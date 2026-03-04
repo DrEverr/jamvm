@@ -24,7 +24,7 @@ enum Access: char {
 }
 
 alias PageIndex = uint;
-alias Pages = HashMap { PageIndex, Page };
+alias Pages = HashMap { PageIndex, Page* };
 
 <* Single Page implementation *>
 struct Page {
@@ -123,7 +123,7 @@ fn void Memory.setData(&self, PageIndex address, Bytes data, Access access = Acc
 fn Page* Memory.getPage(&self, PageIndex address) {
   PageIndex idx = address >> PAGE_SIZE_SHIFT;
   if (!self.pages.has_key(idx)) {
-    self.pages[idx] = *self.pool.acquire();
+    self.pages[idx] = self.pool.acquire();
   }
-  return self.pages.get_ref(idx)!!;
+  return self.pages[idx]!!;
 }
